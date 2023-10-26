@@ -8,8 +8,8 @@ References:
 - https://github.com/fox-it/cisco-ios-xe-implant-detection/tree/main
 - https://www.bleepingcomputer.com/news/security/hackers-update-cisco-ios-xe-backdoor-to-hide-infected-devices/
 """
-
 import sys
+import os
 import argparse
 import logging
 import urllib3
@@ -100,6 +100,19 @@ def check_host(host : str):
     
     return potential_compromise
 
+def save_results(results : list, filename : str):
+    """
+    Save results to file
+    """
+    logger.info(f"[*] Saving results to file")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    try:
+        with open(path, "w") as file:
+            file.write(json.dumps(results, indent=4))
+        logger.info(f"[!] Results recorded in file { path }")
+    except Exception as e:
+        logger.error(f"[*] Cannot write results to file")
+
 def main():
     """
     Checker
@@ -124,6 +137,7 @@ def main():
     logger.info(f"[*] Found { result['total'] } results")
 
     items = result["matches"]
+    
     potential_compromised_hosts = []
     for item in items:
         logger.info(f"[*] Processing device { item['ip_str'] }")
@@ -132,13 +146,7 @@ def main():
             logger.warning(f"   POTENTIAL COMPROMISE IN HOST { item['ip_str'] }\n\tISP: { item['isp'] }\n\tOrganization: { item['org'] }\n\tLocation: Country: { item['location']['country_name'] }. City: { item['location']['city'] }")
         time.sleep(2)
 
-    logger.info(f"[*] Saving results to file")
-    try:
-        with open("compromised_hosts.json", "w") as file:
-            file.write(json.dumps(potential_compromised_hosts, indent=4))
-        logger.info(f"[!] Results recorded in file { args.output_file }")
-    except Exception as e:
-        logger.error(f"[*] Cannot write results to file")
+    save_results(potential_compromised_hosts, args.output_file)
     
     end_time = time.time()
     logger.info(f"[*] Finish time: { end_time }. Elapsed time: { end_time - start_time }")
