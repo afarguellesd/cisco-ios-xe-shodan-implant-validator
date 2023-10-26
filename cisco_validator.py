@@ -109,7 +109,7 @@ def main():
         description="Search and scan Cisco IOS XE device(s)"
     )
     parser.add_argument("-k", "--shodan-key", type=str, help="Shodan API key", required=True, dest="shodan_key")
-    parser.add_argument("-q", "--query", action="append", help="Additional Shodan query parameters", dest="query")
+    parser.add_argument("-q", "--query", action="append", help="Additional Shodan query parameters", dest="query", default=[])
     parser.add_argument("-o", "--output", help="File to store the list of compromised hosts", default=OUTPUT_FILE, dest="output_file")
     args = parser.parse_args()
 
